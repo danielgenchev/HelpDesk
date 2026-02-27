@@ -4,81 +4,86 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Create Ticket - IT Help Desk</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" crossorigin="anonymous">
     <link rel="stylesheet" href="/src/style.css">
+    <script>
+      if (localStorage.getItem('theme') === 'dark') {
+        document.documentElement.setAttribute('data-bs-theme', 'dark');
+      }
+    </script>
   </head>
-  <body>
+  <body class="bg-body-secondary">
 
-    <!-- Navbar -->
-    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark shadow-sm">
       <div class="container">
-        <a class="navbar-brand" href="#">IT Help Desk</a>
+        <a class="navbar-brand fw-bold" href="dashboard.html" data-i18n="brand">IT Help Desk</a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#nav">
+          <span class="navbar-toggler-icon"></span>
+        </button>
         <div class="collapse navbar-collapse justify-content-end" id="nav">
           <ul class="navbar-nav align-items-center">
+            <li class="nav-item dropdown me-3">
+              <a class="nav-link dropdown-toggle text-white" href="#" id="langLabel" role="button" data-bs-toggle="dropdown">🌐 EN</a>
+              <ul class="dropdown-menu dropdown-menu-end">
+                <li><a class="dropdown-item" href="#" onclick="changeLanguage('en')">English (EN)</a></li>
+                <li><a class="dropdown-item" href="#" onclick="changeLanguage('bg')">Български (BG)</a></li>
+              </ul>
+            </li>
             <li class="nav-item">
-              <a class="nav-link" href="dashboard.html">Dashboard</a>
+              <a class="nav-link text-white" href="dashboard.html" data-i18n="backBtn">← Back to Dashboard</a>
             </li>
           </ul>
         </div>
       </div>
     </nav>
 
-    <!-- Main Content -->
     <main class="container mt-5">
       <div class="row justify-content-center">
         <div class="col-md-8 col-lg-6">
           <div class="card shadow">
             <div class="card-header bg-primary text-white">
-              <h4 class="mb-0">Create New Support Ticket</h4>
+              <h4 class="mb-0" data-i18n="createTitle">Create New Support Ticket</h4>
             </div>
             <div class="card-body">
               <div id="alertContainer"></div>
 
               <form id="ticketForm">
-                <!-- Title Field -->
                 <div class="mb-3">
-                  <label for="title" class="form-label">Title <span class="text-danger">*</span></label>
-                  <input type="text" class="form-control" id="title" required placeholder="Brief description of your issue">
+                  <label for="title" class="form-label"><span data-i18n="labelTitle">Title</span> <span class="text-danger">*</span></label>
+                  <input type="text" class="form-control" id="title" required data-i18n-placeholder="placeholderTitle" placeholder="Brief description of your issue">
                 </div>
 
-                <!-- Category Field -->
                 <div class="mb-3">
-                  <label for="category" class="form-label">Category <span class="text-danger">*</span></label>
+                  <label for="category" class="form-label"><span data-i18n="labelCategory">Category</span> <span class="text-danger">*</span></label>
                   <select class="form-select" id="category" required>
-                    <option value="">Loading categories...</option>
+                    <option value="" data-i18n="loadingCat">Loading categories...</option>
                   </select>
                 </div>
 
-                <!-- Priority Field -->
                 <div class="mb-3">
-                  <label for="priority" class="form-label">Priority <span class="text-danger">*</span></label>
+                  <label for="priority" class="form-label"><span data-i18n="labelPriority">Priority</span> <span class="text-danger">*</span></label>
                   <select class="form-select" id="priority" required>
-                    <option value="">Select priority...</option>
-                    <option value="low">Low</option>
-                    <option value="medium">Medium</option>
-                    <option value="high">High</option>
+                    <option value="" data-i18n="selectPriority">Select priority...</option>
+                    <option value="low" data-i18n="low">Low</option>
+                    <option value="medium" data-i18n="medium">Medium</option>
+                    <option value="high" data-i18n="high">High</option>
                   </select>
                 </div>
 
-                <!-- Description Field -->
                 <div class="mb-3">
-                  <label for="description" class="form-label">Description <span class="text-danger">*</span></label>
-                  <textarea class="form-control" id="description" rows="5" required placeholder="Provide detailed information about your issue"></textarea>
+                  <label for="description" class="form-label"><span data-i18n="labelDesc">Description</span> <span class="text-danger">*</span></label>
+                  <textarea class="form-control" id="description" rows="5" required data-i18n-placeholder="placeholderDesc" placeholder="Provide detailed information about your issue"></textarea>
                 </div>
 
-                <!-- Attachment Field -->
                 <div class="mb-3">
-                  <label for="fileUpload" class="form-label">Attachment (Optional)</label>
+                  <label for="fileUpload" class="form-label" data-i18n="labelAttach">Attachment (Optional)</label>
                   <input type="file" class="form-control" id="fileUpload" accept="image/*">
-                  <div class="form-text">Upload an image if needed (PNG, JPG, GIF)</div>
+                  <div class="form-text" data-i18n="helpAttach">Upload an image if needed (PNG, JPG, GIF)</div>
                 </div>
 
-                <!-- Submit Button -->
                 <div class="d-grid gap-2">
-                  <button type="submit" class="btn btn-primary" id="submitBtn">
-                    Create Ticket
-                  </button>
-                  <a href="dashboard.html" class="btn btn-outline-secondary">Cancel</a>
+                  <button type="submit" class="btn btn-primary" id="submitBtn" data-i18n="submitBtn">Create Ticket</button>
+                  <a href="dashboard.html" class="btn btn-outline-secondary" data-i18n="cancelBtn">Cancel</a>
                 </div>
               </form>
             </div>
@@ -90,151 +95,93 @@
     <script type="module">
       import { supabase } from './src/supabase.js'
 
-      // Auth check - redirect if not logged in
-      async function checkAuth() {
-        const { data: { session }, error } = await supabase.auth.getSession()
-        
-        if (error || !session) {
-          window.location.href = 'login.html'
-          return null
+      // i18n Логика
+      const dictionary = {
+        en: {
+          brand: "IT Help Desk", backBtn: "← Back to Dashboard",
+          createTitle: "Create New Support Ticket", labelTitle: "Title", placeholderTitle: "Brief description of your issue",
+          labelCategory: "Category", loadingCat: "Loading categories...", labelPriority: "Priority", selectPriority: "Select priority...",
+          low: "Low", medium: "Medium", high: "High", labelDesc: "Description", placeholderDesc: "Provide detailed information...",
+          labelAttach: "Attachment (Optional)", helpAttach: "Upload an image if needed (PNG, JPG, GIF)",
+          submitBtn: "Create Ticket", cancelBtn: "Cancel", creating: "Creating..."
+        },
+        bg: {
+          brand: "IT Help Desk", backBtn: "← Обратно към Таблото",
+          createTitle: "Създай Нов Тикет", labelTitle: "Заглавие", placeholderTitle: "Кратко описание на проблема",
+          labelCategory: "Категория", loadingCat: "Зареждане на категории...", labelPriority: "Приоритет", selectPriority: "Изберете приоритет...",
+          low: "Нисък", medium: "Среден", high: "Висок", labelDesc: "Описание", placeholderDesc: "Предоставете подробна информация...",
+          labelAttach: "Прикачен файл (По желание)", helpAttach: "Качете снимка, ако е нужно (PNG, JPG, GIF)",
+          submitBtn: "Създай Тикет", cancelBtn: "Отказ", creating: "Създаване..."
         }
-        
+      };
+
+      let currentLang = localStorage.getItem('lang') || 'en';
+
+      function applyTranslations() {
+        const texts = dictionary[currentLang];
+        document.querySelectorAll('[data-i18n]').forEach(el => {
+          if (texts[el.getAttribute('data-i18n')]) el.textContent = texts[el.getAttribute('data-i18n')];
+        });
+        document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
+          if (texts[el.getAttribute('data-i18n-placeholder')]) el.placeholder = texts[el.getAttribute('data-i18n-placeholder')];
+        });
+        document.getElementById('langLabel').textContent = currentLang === 'bg' ? '🌐 BG' : '🌐 EN';
+      }
+
+      window.changeLanguage = function(lang) {
+        currentLang = lang;
+        localStorage.setItem('lang', lang);
+        applyTranslations();
+      };
+      
+      applyTranslations(); // Извикваме веднага
+
+      // Стандартната логика за запазване (Auth, LoadCategories, Submit)
+      async function checkAuth() {
+        const { data: { session } } = await supabase.auth.getSession()
+        if (!session) window.location.href = 'login.html'
         return session
       }
 
-      // Load categories from Supabase
       async function loadCategories() {
-        try {
-          const { data, error } = await supabase
-            .from('categories')
-            .select('*')
-            .order('name')
-
-          if (error) throw error
-
-          const categorySelect = document.getElementById('category')
-          
-          if (data && data.length > 0) {
-            categorySelect.innerHTML = '<option value="">Select a category...</option>'
-            data.forEach(category => {
-              const option = document.createElement('option')
-              option.value = category.id
-              option.textContent = category.name
-              categorySelect.appendChild(option)
-            })
-          } else {
-            categorySelect.innerHTML = '<option value="">No categories available</option>'
-          }
-        } catch (error) {
-          console.error('Error loading categories:', error)
-          showAlert('Failed to load categories. Please refresh the page.', 'danger')
+        const { data } = await supabase.from('categories').select('*').order('name')
+        const select = document.getElementById('category')
+        if (data) {
+          select.innerHTML = `<option value="" data-i18n="selectPriority">${currentLang === 'bg' ? 'Изберете категория...' : 'Select a category...'}</option>`
+          data.forEach(c => select.innerHTML += `<option value="${c.id}">${c.name}</option>`)
         }
       }
 
-      // Show alert messages
-      function showAlert(message, type = 'info') {
-        const alertContainer = document.getElementById('alertContainer')
-        const alert = document.createElement('div')
-        alert.className = `alert alert-${type} alert-dismissible fade show`
-        alert.innerHTML = `
-          ${message}
-          <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-        `
-        alertContainer.innerHTML = ''
-        alertContainer.appendChild(alert)
-      }
-
-      // Handle form submission
       document.getElementById('ticketForm').addEventListener('submit', async (e) => {
         e.preventDefault()
-
-        const submitBtn = document.getElementById('submitBtn')
-        const originalBtnText = submitBtn.textContent
+        const btn = document.getElementById('submitBtn')
+        btn.disabled = true; btn.textContent = dictionary[currentLang].creating;
 
         try {
-          // Disable button and show loading state
-          submitBtn.disabled = true
-          submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>Creating...'
-
-          // Get current session
-          const { data: { session }, error: sessionError } = await supabase.auth.getSession()
-          if (sessionError || !session) {
-            throw new Error('Not authenticated')
-          }
-
-          const userId = session.user.id
-          const title = document.getElementById('title').value
-          const categoryId = document.getElementById('category').value
-          const priority = document.getElementById('priority').value
-          const description = document.getElementById('description').value
+          const session = await checkAuth()
           const fileInput = document.getElementById('fileUpload')
-
           let attachmentUrl = null
 
-          // Handle file upload if a file is selected
-          if (fileInput.files && fileInput.files[0]) {
+          if (fileInput.files[0]) {
             const file = fileInput.files[0]
-            const fileExt = file.name.split('.').pop()
-            const fileName = `${Date.now()}.${fileExt}`
-            const filePath = `${userId}/${fileName}`
-
-            const { data: uploadData, error: uploadError } = await supabase.storage
-              .from('attachments')
-              .upload(filePath, file)
-
-            if (uploadError) {
-              throw new Error(`File upload failed: ${uploadError.message}`)
-            }
-
-            // Get public URL
-            const { data: publicUrlData } = supabase.storage
-              .from('attachments')
-              .getPublicUrl(filePath)
-
-            attachmentUrl = publicUrlData.publicUrl
+            const filePath = `${session.user.id}/${Date.now()}.${file.name.split('.').pop()}`
+            await supabase.storage.from('attachments').upload(filePath, file)
+            attachmentUrl = supabase.storage.from('attachments').getPublicUrl(filePath).data.publicUrl
           }
 
-          // Insert ticket into database
-          const { data, error } = await supabase
-            .from('tickets')
-            .insert([
-              {
-                user_id: userId,
-                category_id: categoryId,
-                title: title,
-                description: description,
-                priority: priority,
-                attachment_url: attachmentUrl,
-                status: 'open'
-              }
-            ])
-            .select()
-
-          if (error) throw error
-
-          // Success - show alert and redirect
-          alert('Ticket created successfully!')
+          await supabase.from('tickets').insert([{
+            user_id: session.user.id, category_id: document.getElementById('category').value,
+            title: document.getElementById('title').value, description: document.getElementById('description').value,
+            priority: document.getElementById('priority').value, attachment_url: attachmentUrl, status: 'open'
+          }])
           window.location.href = 'dashboard.html'
-
-        } catch (error) {
-          console.error('Error creating ticket:', error)
-          showAlert(`Error: ${error.message}`, 'danger')
-          
-          // Re-enable button
-          submitBtn.disabled = false
-          submitBtn.textContent = originalBtnText
+        } catch (err) {
+          alert('Error: ' + err.message); btn.disabled = false; btn.textContent = dictionary[currentLang].submitBtn;
         }
       })
 
-      // Initialize page
-      ;(async () => {
-        const session = await checkAuth()
-        if (session) {
-          await loadCategories()
-        }
-      })()
+      checkAuth().then(() => loadCategories())
     </script>
-
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
   </body>
 </html>
