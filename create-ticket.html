@@ -170,7 +170,7 @@
           }
 
           await supabase.from('tickets').insert([{
-            user_id: session.user.id, category_id: document.getElementById('category').value,
+            user_id: session.user.id, user_email: session.user.email, category_id: document.getElementById('category').value,
             title: document.getElementById('title').value, description: document.getElementById('description').value,
             priority: document.getElementById('priority').value, attachment_url: attachmentUrl, status: 'open'
           }])

@@ -7,7 +7,6 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" crossorigin="anonymous">
     <link rel="stylesheet" href="/src/style.css">
     <script>
-      // Прилага тъмната тема веднага
       if (localStorage.getItem('theme') === 'dark') {
         document.documentElement.setAttribute('data-bs-theme', 'dark');
       }
@@ -18,35 +17,22 @@
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark shadow-sm">
       <div class="container">
         <a class="navbar-brand fw-bold" href="#" data-i18n="brand">IT Help Desk</a>
-        
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#nav">
           <span class="navbar-toggler-icon"></span>
         </button>
 
         <div class="collapse navbar-collapse justify-content-end" id="nav">
           <ul class="navbar-nav align-items-center">
-            
             <li class="nav-item dropdown me-3">
-              <a class="nav-link dropdown-toggle text-white" href="#" id="langLabel" role="button" data-bs-toggle="dropdown">
-                🌐 EN
-              </a>
+              <a class="nav-link dropdown-toggle text-white" href="#" id="langLabel" role="button" data-bs-toggle="dropdown">🌐 EN</a>
               <ul class="dropdown-menu dropdown-menu-end">
                 <li><a class="dropdown-item" href="#" onclick="changeLanguage('en')">English (EN)</a></li>
                 <li><a class="dropdown-item" href="#" onclick="changeLanguage('bg')">Български (BG)</a></li>
               </ul>
             </li>
-
-            <li class="nav-item me-3">
-              <span class="nav-link text-white-50" id="userEmail"></span>
-            </li>
-            
-            <li class="nav-item me-2">
-              <a href="settings.html" class="btn btn-outline-light btn-sm" data-i18n="settingsBtn">⚙️ Settings</a>
-            </li>
-
-            <li class="nav-item">
-              <button id="logoutBtn" class="btn btn-danger btn-sm" data-i18n="logoutBtn">Logout</button>
-            </li>
+            <li class="nav-item me-3"><span class="nav-link text-white-50" id="userEmail"></span></li>
+            <li class="nav-item me-2"><a href="settings.html" class="btn btn-outline-light btn-sm" data-i18n="settingsBtn">⚙️ Settings</a></li>
+            <li class="nav-item"><button id="logoutBtn" class="btn btn-danger btn-sm" data-i18n="logoutBtn">Logout</button></li>
           </ul>
         </div>
       </div>
@@ -56,7 +42,7 @@
       <div id="alertContainer"></div>
 
       <div class="d-flex justify-content-between align-items-center mb-4">
-        <h2 class="mb-0" data-i18n="myTicketsTitle">My Tickets</h2>
+        <h2 class="mb-0" id="dashboardTitle" data-i18n="myTicketsTitle">My Tickets</h2>
         <a class="btn btn-primary shadow-sm" href="create-ticket.html" data-i18n="createTicketBtn">+ Create New Ticket</a>
       </div>
 
@@ -72,7 +58,7 @@
               <thead class="table-light">
                 <tr>
                   <th class="ps-4" data-i18n="thTitle">Title</th>
-                  <th data-i18n="thPriority">Priority</th>
+                  <th data-i18n="thAuthor">Author</th> <th data-i18n="thPriority">Priority</th>
                   <th data-i18n="thStatus">Status</th>
                   <th data-i18n="thDate">Date</th>
                   <th class="text-end pe-4" data-i18n="thActions">Actions</th>
@@ -88,57 +74,27 @@
     <script type="module">
       import { supabase } from './src/supabase.js'
 
-      // --- СИСТЕМА ЗА ПРЕВОД (i18n) ---
       const dictionary = {
         en: {
-          brand: "IT Help Desk",
-          settingsBtn: "⚙️ Settings",
-          logoutBtn: "Logout",
-          myTicketsTitle: "My Tickets",
-          createTicketBtn: "+ Create New Ticket",
-          noTickets: "No tickets found",
-          noTicketsDesc: "You haven't created any support tickets yet.",
-          thTitle: "Title",
-          thPriority: "Priority",
-          thStatus: "Status",
-          thDate: "Date",
-          thActions: "Actions",
-          viewBtn: "View",
-          // Динамични стойности за базата данни
-          status_open: "open", 
-          status_inprogress: "in progress", 
-          status_closed: "closed", 
-          status_resolved: "resolved",
-          priority_low: "low", 
-          priority_medium: "medium", 
-          priority_high: "high"
+          brand: "IT Help Desk", settingsBtn: "⚙️ Settings", logoutBtn: "Logout",
+          myTicketsTitle: "My Tickets", allTicketsTitle: "All Tickets (Admin)",
+          createTicketBtn: "+ Create New Ticket", noTickets: "No tickets found", noTicketsDesc: "You haven't created any support tickets yet.",
+          thTitle: "Title", thAuthor: "Author", thPriority: "Priority", thStatus: "Status", thDate: "Date", thActions: "Actions", viewBtn: "View",
+          status_open: "open", status_inprogress: "in progress", status_closed: "closed", status_resolved: "resolved",
+          priority_low: "low", priority_medium: "medium", priority_high: "high"
         },
         bg: {
-          brand: "IT Help Desk",
-          settingsBtn: "⚙️ Настройки",
-          logoutBtn: "Изход",
-          myTicketsTitle: "Моите Тикети",
-          createTicketBtn: "+ Създай Тикет",
-          noTickets: "Няма тикети",
-          noTicketsDesc: "Все още нямате създадени тикети.",
-          thTitle: "Заглавие",
-          thPriority: "Приоритет",
-          thStatus: "Статус",
-          thDate: "Дата",
-          thActions: "Действия",
-          viewBtn: "Преглед",
-          // Динамични стойности за базата данни
-          status_open: "отворен", 
-          status_inprogress: "в процес", 
-          status_closed: "затворен", 
-          status_resolved: "решен",
-          priority_low: "нисък", 
-          priority_medium: "среден", 
-          priority_high: "висок"
+          brand: "IT Help Desk", settingsBtn: "⚙️ Настройки", logoutBtn: "Изход",
+          myTicketsTitle: "Моите Тикети", allTicketsTitle: "Всички Тикети (Админ)",
+          createTicketBtn: "+ Създай Тикет", noTickets: "Няма тикети", noTicketsDesc: "Все още нямате създадени тикети.",
+          thTitle: "Заглавие", thAuthor: "Автор", thPriority: "Приоритет", thStatus: "Статус", thDate: "Дата", thActions: "Действия", viewBtn: "Преглед",
+          status_open: "отворен", status_inprogress: "в процес", status_closed: "затворен", status_resolved: "решен",
+          priority_low: "нисък", priority_medium: "среден", priority_high: "висок"
         }
       };
 
       let currentLang = localStorage.getItem('lang') || 'en';
+      let currentUser = null;
 
       function applyTranslations() {
         const texts = dictionary[currentLang];
@@ -147,99 +103,113 @@
           if (texts[key]) el.textContent = texts[key];
         });
         document.getElementById('langLabel').textContent = currentLang === 'bg' ? '🌐 BG' : '🌐 EN';
+        if (currentUser) {
+          document.getElementById('dashboardTitle').textContent = currentUser.email === 'demo@helpdesk.local' ? texts.allTicketsTitle : texts.myTicketsTitle;
+        }
       }
 
       window.changeLanguage = function(lang) {
         currentLang = lang;
         localStorage.setItem('lang', lang);
         applyTranslations();
-        // Презареждаме таблицата, за да се преведат статусите и приоритетите
-        ensureAuth().then(user => { if(user) loadTickets(user); });
+        if (currentUser) loadTickets(currentUser);
       };
 
-      // Първоначално зареждане на езика
-      applyTranslations();
-
       const alertContainer = document.getElementById('alertContainer');
-      const userEmailEl = document.getElementById('userEmail');
-      const logoutBtn = document.getElementById('logoutBtn');
       const ticketTableCard = document.getElementById('ticketTableCard');
       const ticketTbody = document.getElementById('ticket-table-body');
       const noTicketsEl = document.getElementById('noTickets');
 
-      async function ensureAuth() {
-        const { data } = await supabase.auth.getSession()
-        const session = data?.session ?? null
-        if (!session || !session.user) {
-          window.location.href = 'login.html'
-          return null
-        }
-        return session.user
+      function showAlert(msg, type = 'danger') {
+        alertContainer.innerHTML = `<div class="alert alert-${type} alert-dismissible fade show">${msg} <button type="button" class="btn-close" data-bs-dismiss="alert"></button></div>`;
       }
 
-      // Функции за баджовете (с вграден превод)
+      async function ensureAuth() {
+        const { data } = await supabase.auth.getSession()
+        if (!data?.session?.user) { window.location.href = 'login.html'; return null; }
+        return data.session.user;
+      }
+
       function getStatusBadge(status) {
         const map = { 'open': 'success', 'in-progress': 'primary', 'closed': 'secondary', 'resolved': 'info' };
-        // Вземаме превода от речника спрямо текущия език
-        const translatedStatus = dictionary[currentLang][`status_${status.replace('-', '')}`] || status;
-        return `<span class="badge bg-${map[status] || 'secondary'} text-capitalize">${translatedStatus}</span>`;
+        const trStatus = dictionary[currentLang][`status_${status.replace('-', '')}`] || status;
+        return `<span class="badge bg-${map[status] || 'secondary'} text-capitalize">${trStatus}</span>`;
       }
 
       function getPriorityBadge(priority) {
         const map = { 'low': 'info', 'medium': 'warning', 'high': 'danger' };
-        // Вземаме превода от речника спрямо текущия език
-        const translatedPriority = dictionary[currentLang][`priority_${priority}`] || priority;
-        return `<span class="badge bg-${map[priority] || 'secondary'} text-capitalize">${translatedPriority}</span>`;
+        const trPriority = dictionary[currentLang][`priority_${priority}`] || priority;
+        return `<span class="badge bg-${map[priority] || 'secondary'} text-capitalize">${trPriority}</span>`;
       }
 
       async function loadTickets(user) {
         ticketTbody.innerHTML = '';
         noTicketsEl.classList.add('d-none');
+        
+        const isAdmin = user.email === 'demo@helpdesk.local';
+        let query = supabase.from('tickets').select('*').order('created_at', { ascending: false });
+        if (!isAdmin) query = query.eq('user_id', user.id);
 
-        const { data: tickets, error } = await supabase
-          .from('tickets')
-          .select('*')
-          .eq('user_id', user.id)
-          .order('created_at', { ascending: false });
-
-        if (error) return;
-
-        if (!tickets || tickets.length === 0) {
+        const { data: tickets, error } = await query;
+        if (error || !tickets || tickets.length === 0) {
           ticketTableCard.classList.add('d-none');
           noTicketsEl.classList.remove('d-none');
           return;
         }
 
         ticketTableCard.classList.remove('d-none');
-        const viewText = dictionary[currentLang].viewBtn;
+        const t = dictionary[currentLang];
 
-        for (const t of tickets) {
+        for (const ticket of tickets) {
           const tr = document.createElement('tr');
-          const dateText = t.created_at ? new Date(t.created_at).toLocaleDateString() : '';
+          const dateText = ticket.created_at ? new Date(ticket.created_at).toLocaleDateString() : '';
+          const authorEmail = ticket.user_email || 'Unknown'; // Взимаме имейла
+
+          let statusHtml = isAdmin ? `
+              <select class="form-select form-select-sm status-dropdown" data-id="${ticket.id}" style="width: 140px; cursor: pointer;">
+                <option value="open" ${ticket.status === 'open' ? 'selected' : ''}>${t.status_open}</option>
+                <option value="in progress" ${ticket.status === 'in progress' ? 'selected' : ''}>${t.status_inprogress}</option>
+                <option value="resolved" ${ticket.status === 'resolved' ? 'selected' : ''}>${t.status_resolved}</option>
+                <option value="closed" ${ticket.status === 'closed' ? 'selected' : ''}>${t.status_closed}</option>
+              </select>` : getStatusBadge(ticket.status);
 
           tr.innerHTML = `
-            <td class="ps-4 fw-medium">${String(t.title).replace(/</g, '&lt;')}</td>
-            <td>${getPriorityBadge(t.priority)}</td>
-            <td>${getStatusBadge(t.status)}</td>
+            <td class="ps-4 fw-medium">${String(ticket.title).replace(/</g, '&lt;')}</td>
+            <td><span class="text-muted small">${authorEmail}</span></td> <td>${getPriorityBadge(ticket.priority)}</td>
+            <td>${statusHtml}</td>
             <td class="text-muted small">${dateText}</td>
             <td class="text-end pe-4">
-              <a class="btn btn-sm btn-outline-primary" href="view-ticket.html?id=${t.id}">${viewText}</a>
+              <a class="btn btn-sm btn-outline-primary" href="view-ticket.html?id=${ticket.id}">${t.viewBtn}</a>
             </td>
           `;
           ticketTbody.appendChild(tr);
         }
+
+        if (isAdmin) {
+          document.querySelectorAll('.status-dropdown').forEach(select => {
+            select.addEventListener('change', async (e) => {
+              const ticketId = e.target.getAttribute('data-id');
+              const newStatus = e.target.value;
+              e.target.disabled = true; 
+              const { error } = await supabase.from('tickets').update({ status: newStatus }).eq('id', ticketId);
+              if (error) showAlert('Failed to update status: ' + error.message);
+              e.target.disabled = false;
+            });
+          });
+        }
       }
 
-      logoutBtn.addEventListener('click', async () => {
+      document.getElementById('logoutBtn').addEventListener('click', async () => {
         await supabase.auth.signOut();
         window.location.href = 'login.html';
       });
 
       ;(async () => {
-        const user = await ensureAuth();
-        if (!user) return;
-        userEmailEl.textContent = user.email || '';
-        await loadTickets(user);
+        currentUser = await ensureAuth();
+        if (!currentUser) return;
+        document.getElementById('userEmail').textContent = currentUser.email || '';
+        applyTranslations();
+        await loadTickets(currentUser);
       })();
     </script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
