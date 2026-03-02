@@ -20,7 +20,6 @@
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#nav">
           <span class="navbar-toggler-icon"></span>
         </button>
-
         <div class="collapse navbar-collapse justify-content-end" id="nav">
           <ul class="navbar-nav align-items-center">
             <li class="nav-item dropdown me-3">
@@ -58,7 +57,8 @@
               <thead class="table-light">
                 <tr>
                   <th class="ps-4" data-i18n="thTitle">Title</th>
-                  <th data-i18n="thAuthor">Author</th> <th data-i18n="thPriority">Priority</th>
+                  <th data-i18n="thAuthor">Author</th>
+                  <th data-i18n="thPriority">Priority</th>
                   <th data-i18n="thStatus">Status</th>
                   <th data-i18n="thDate">Date</th>
                   <th class="text-end pe-4" data-i18n="thActions">Actions</th>
@@ -72,144 +72,139 @@
     </main>
 
     <script type="module">
-      import { supabase } from './src/supabase.js'
+      import { requireAuth, logoutUser, isAdmin } from './src/auth.js';
+      import { getTickets, updateTicketStatus } from './src/api.js';
+      import { dictionary, getCurrentLang, setLang } from './src/i18n.js';
 
-      const dictionary = {
-        en: {
-          brand: "IT Help Desk", settingsBtn: "⚙️ Settings", logoutBtn: "Logout",
-          myTicketsTitle: "My Tickets", allTicketsTitle: "All Tickets (Admin)",
-          createTicketBtn: "+ Create New Ticket", noTickets: "No tickets found", noTicketsDesc: "You haven't created any support tickets yet.",
-          thTitle: "Title", thAuthor: "Author", thPriority: "Priority", thStatus: "Status", thDate: "Date", thActions: "Actions", viewBtn: "View",
-          status_open: "open", status_inprogress: "in progress", status_closed: "closed", status_resolved: "resolved",
-          priority_low: "low", priority_medium: "medium", priority_high: "high"
-        },
-        bg: {
-          brand: "IT Help Desk", settingsBtn: "⚙️ Настройки", logoutBtn: "Изход",
-          myTicketsTitle: "Моите Тикети", allTicketsTitle: "Всички Тикети (Админ)",
-          createTicketBtn: "+ Създай Тикет", noTickets: "Няма тикети", noTicketsDesc: "Все още нямате създадени тикети.",
-          thTitle: "Заглавие", thAuthor: "Автор", thPriority: "Приоритет", thStatus: "Статус", thDate: "Дата", thActions: "Действия", viewBtn: "Преглед",
-          status_open: "отворен", status_inprogress: "в процес", status_closed: "затворен", status_resolved: "решен",
-          priority_low: "нисък", priority_medium: "среден", priority_high: "висок"
-        }
-      };
-
-      let currentLang = localStorage.getItem('lang') || 'en';
       let currentUser = null;
-
-      function applyTranslations() {
-        const texts = dictionary[currentLang];
-        document.querySelectorAll('[data-i18n]').forEach(el => {
-          const key = el.getAttribute('data-i18n');
-          if (texts[key]) el.textContent = texts[key];
-        });
-        document.getElementById('langLabel').textContent = currentLang === 'bg' ? '🌐 BG' : '🌐 EN';
-        if (currentUser) {
-          document.getElementById('dashboardTitle').textContent = currentUser.email === 'demo@helpdesk.local' ? texts.allTicketsTitle : texts.myTicketsTitle;
-        }
-      }
-
-      window.changeLanguage = function(lang) {
-        currentLang = lang;
-        localStorage.setItem('lang', lang);
-        applyTranslations();
-        if (currentUser) loadTickets(currentUser);
-      };
+      let userIsAdmin = false;
 
       const alertContainer = document.getElementById('alertContainer');
       const ticketTableCard = document.getElementById('ticketTableCard');
       const ticketTbody = document.getElementById('ticket-table-body');
       const noTicketsEl = document.getElementById('noTickets');
 
+      // Логика за преводите
+      function applyTranslations() {
+        const lang = getCurrentLang();
+        const texts = dictionary[lang];
+        document.querySelectorAll('[data-i18n]').forEach(el => {
+          const key = el.getAttribute('data-i18n');
+          if (texts[key]) el.textContent = texts[key];
+        });
+        document.getElementById('langLabel').textContent = lang === 'bg' ? '🌐 BG' : '🌐 EN';
+        if (currentUser) {
+          document.getElementById('dashboardTitle').textContent = userIsAdmin ? texts.allTicketsTitle : texts.myTicketsTitle;
+        }
+      }
+
+      window.changeLanguage = function(lang) {
+        setLang(lang);
+        applyTranslations();
+        if (currentUser) renderTickets();
+      };
+
       function showAlert(msg, type = 'danger') {
         alertContainer.innerHTML = `<div class="alert alert-${type} alert-dismissible fade show">${msg} <button type="button" class="btn-close" data-bs-dismiss="alert"></button></div>`;
       }
 
-      async function ensureAuth() {
-        const { data } = await supabase.auth.getSession()
-        if (!data?.session?.user) { window.location.href = 'login.html'; return null; }
-        return data.session.user;
-      }
-
       function getStatusBadge(status) {
-        const map = { 'open': 'success', 'in-progress': 'primary', 'closed': 'secondary', 'resolved': 'info' };
-        const trStatus = dictionary[currentLang][`status_${status.replace('-', '')}`] || status;
+        const map = { 'open': 'success', 'in-progress': 'primary', 'in progress': 'primary', 'closed': 'secondary', 'resolved': 'info' };
+        const lang = getCurrentLang();
+        // Премахваме тирета и интервали, за да намерим ключа в речника (напр. status_inprogress)
+        const trStatus = dictionary[lang][`status_${status.replace('-', '').replace(' ', '')}`] || status;
         return `<span class="badge bg-${map[status] || 'secondary'} text-capitalize">${trStatus}</span>`;
       }
 
       function getPriorityBadge(priority) {
         const map = { 'low': 'info', 'medium': 'warning', 'high': 'danger' };
-        const trPriority = dictionary[currentLang][`priority_${priority}`] || priority;
+        const trPriority = dictionary[getCurrentLang()][`priority_${priority}`] || priority;
         return `<span class="badge bg-${map[priority] || 'secondary'} text-capitalize">${trPriority}</span>`;
       }
 
-      async function loadTickets(user) {
+      // Основна функция за рисуване на тикетите
+      async function renderTickets() {
         ticketTbody.innerHTML = '';
         noTicketsEl.classList.add('d-none');
         
-        const isAdmin = user.email === 'demo@helpdesk.local';
-        let query = supabase.from('tickets').select('*').order('created_at', { ascending: false });
-        if (!isAdmin) query = query.eq('user_id', user.id);
+        try {
+          // ИЗПОЛЗВАМЕ НАШИЯ API SERVICE
+          const tickets = await getTickets(currentUser, userIsAdmin);
 
-        const { data: tickets, error } = await query;
-        if (error || !tickets || tickets.length === 0) {
-          ticketTableCard.classList.add('d-none');
-          noTicketsEl.classList.remove('d-none');
-          return;
-        }
+          if (!tickets || tickets.length === 0) {
+            ticketTableCard.classList.add('d-none');
+            noTicketsEl.classList.remove('d-none');
+            return;
+          }
 
-        ticketTableCard.classList.remove('d-none');
-        const t = dictionary[currentLang];
+          ticketTableCard.classList.remove('d-none');
+          const t = dictionary[getCurrentLang()];
 
-        for (const ticket of tickets) {
-          const tr = document.createElement('tr');
-          const dateText = ticket.created_at ? new Date(ticket.created_at).toLocaleDateString() : '';
-          const authorEmail = ticket.user_email || 'Unknown'; // Взимаме имейла
+          for (const ticket of tickets) {
+            const tr = document.createElement('tr');
+            const dateText = ticket.created_at ? new Date(ticket.created_at).toLocaleDateString() : '';
+            const authorEmail = ticket.user_email || 'Unknown';
 
-          let statusHtml = isAdmin ? `
-              <select class="form-select form-select-sm status-dropdown" data-id="${ticket.id}" style="width: 140px; cursor: pointer;">
-                <option value="open" ${ticket.status === 'open' ? 'selected' : ''}>${t.status_open}</option>
-                <option value="in progress" ${ticket.status === 'in progress' ? 'selected' : ''}>${t.status_inprogress}</option>
-                <option value="resolved" ${ticket.status === 'resolved' ? 'selected' : ''}>${t.status_resolved}</option>
-                <option value="closed" ${ticket.status === 'closed' ? 'selected' : ''}>${t.status_closed}</option>
-              </select>` : getStatusBadge(ticket.status);
+            // ТУК Е ФИКСЪТ ЗА СТАРИТЕ ТИКЕТИ С ТИРЕ
+            let statusHtml = userIsAdmin ? `
+                <select class="form-select form-select-sm status-dropdown" data-id="${ticket.id}" style="width: 140px; cursor: pointer;">
+                  <option value="open" ${ticket.status === 'open' ? 'selected' : ''}>${t.status_open}</option>
+                  <option value="in progress" ${ticket.status === 'in progress' || ticket.status === 'in-progress' ? 'selected' : ''}>${t.status_inprogress}</option>
+                  <option value="resolved" ${ticket.status === 'resolved' ? 'selected' : ''}>${t.status_resolved}</option>
+                  <option value="closed" ${ticket.status === 'closed' ? 'selected' : ''}>${t.status_closed}</option>
+                </select>` : getStatusBadge(ticket.status);
 
-          tr.innerHTML = `
-            <td class="ps-4 fw-medium">${String(ticket.title).replace(/</g, '&lt;')}</td>
-            <td><span class="text-muted small">${authorEmail}</span></td> <td>${getPriorityBadge(ticket.priority)}</td>
-            <td>${statusHtml}</td>
-            <td class="text-muted small">${dateText}</td>
-            <td class="text-end pe-4">
-              <a class="btn btn-sm btn-outline-primary" href="view-ticket.html?id=${ticket.id}">${t.viewBtn}</a>
-            </td>
-          `;
-          ticketTbody.appendChild(tr);
-        }
+            tr.innerHTML = `
+              <td class="ps-4 fw-medium">${String(ticket.title).replace(/</g, '&lt;')}</td>
+              <td><span class="text-muted small">${authorEmail}</span></td>
+              <td>${getPriorityBadge(ticket.priority)}</td>
+              <td>${statusHtml}</td>
+              <td class="text-muted small">${dateText}</td>
+              <td class="text-end pe-4">
+                <a class="btn btn-sm btn-outline-primary" href="view-ticket.html?id=${ticket.id}">${t.viewBtn}</a>
+              </td>
+            `;
+            ticketTbody.appendChild(tr);
+          }
 
-        if (isAdmin) {
-          document.querySelectorAll('.status-dropdown').forEach(select => {
-            select.addEventListener('change', async (e) => {
-              const ticketId = e.target.getAttribute('data-id');
-              const newStatus = e.target.value;
-              e.target.disabled = true; 
-              const { error } = await supabase.from('tickets').update({ status: newStatus }).eq('id', ticketId);
-              if (error) showAlert('Failed to update status: ' + error.message);
-              e.target.disabled = false;
+          // Слушатели за падащото меню
+          if (userIsAdmin) {
+            document.querySelectorAll('.status-dropdown').forEach(select => {
+              select.addEventListener('change', async (e) => {
+                const ticketId = e.target.getAttribute('data-id');
+                const newStatus = e.target.value;
+                e.target.disabled = true; 
+                
+                try {
+                  // ИЗПОЛЗВАМЕ НАШИЯ API SERVICE
+                  await updateTicketStatus(ticketId, newStatus);
+                } catch (err) {
+                  showAlert('Failed to update status: ' + err.message);
+                }
+                
+                e.target.disabled = false;
+              });
             });
-          });
+          }
+        } catch (error) {
+          showAlert('Failed to load tickets: ' + error.message);
         }
       }
 
-      document.getElementById('logoutBtn').addEventListener('click', async () => {
-        await supabase.auth.signOut();
-        window.location.href = 'login.html';
-      });
+      // ИЗПОЛЗВАМЕ НАШИЯ AUTH SERVICE ЗА ИЗХОД
+      document.getElementById('logoutBtn').addEventListener('click', logoutUser);
 
+      // Инициализация
       ;(async () => {
-        currentUser = await ensureAuth();
+        // ИЗПОЛЗВАМЕ НАШИЯ AUTH SERVICE ЗА ПРОВЕРКА НА ВХОД
+        currentUser = await requireAuth();
         if (!currentUser) return;
+        
+        userIsAdmin = isAdmin(currentUser);
         document.getElementById('userEmail').textContent = currentUser.email || '';
+        
         applyTranslations();
-        await loadTickets(currentUser);
+        await renderTickets();
       })();
     </script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>

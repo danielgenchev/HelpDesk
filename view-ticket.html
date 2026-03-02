@@ -33,14 +33,11 @@
           <div id="alertContainer"></div>
           
           <div id="loadingSpinner" class="text-center mt-5">
-            <div class="spinner-border text-primary" role="status">
-              <span class="visually-hidden">Loading...</span>
-            </div>
+            <div class="spinner-border text-primary" role="status"></div>
             <p class="mt-2" data-i18n="loading">Loading ticket details...</p>
           </div>
           
-          <div id="ticketContainer" style="display: none;">
-            </div>
+          <div id="ticketContainer" style="display: none;"></div>
         </div>
       </div>
     </main>
@@ -48,44 +45,39 @@
     <script type="module">
       import { supabase } from './src/supabase.js'
 
-      // i18n Речник
       const dictionary = {
         en: {
           brand: "IT Help Desk", backBtn: "← Back to Dashboard", loading: "Loading ticket details...",
-          lblPriority: "Priority:", lblCategory: "Category:", lblCreated: "Created:",
-          lblDesc: "Description", lblAttach: "Attachment",
+          lblAuthor: "Author:", lblPriority: "Priority:", lblCategory: "Category:", lblCreated: "Created:",
+          lblDesc: "Description", lblAttach: "Attachment", editBtn: "Edit Ticket",
           status_open: "open", status_inprogress: "in progress", status_closed: "closed", status_resolved: "resolved",
           priority_low: "low", priority_medium: "medium", priority_high: "high"
         },
         bg: {
           brand: "IT Help Desk", backBtn: "← Обратно към Таблото", loading: "Зареждане на детайли...",
-          lblPriority: "Приоритет:", lblCategory: "Категория:", lblCreated: "Създаден:",
-          lblDesc: "Описание", lblAttach: "Прикачен файл",
+          lblAuthor: "Автор:", lblPriority: "Приоритет:", lblCategory: "Категория:", lblCreated: "Създаден:",
+          lblDesc: "Описание", lblAttach: "Прикачен файл", editBtn: "Редактирай",
           status_open: "отворен", status_inprogress: "в процес", status_closed: "затворен", status_resolved: "решен",
           priority_low: "нисък", priority_medium: "среден", priority_high: "висок"
         }
       };
 
       let currentLang = localStorage.getItem('lang') || 'en';
+      let currentUser = null;
 
-      // Превежда статичните HTML елементи (като менюто)
       function applyTranslations() {
         const texts = dictionary[currentLang];
         document.querySelectorAll('[data-i18n]').forEach(el => {
-          const key = el.getAttribute('data-i18n');
-          if (texts[key]) el.textContent = texts[key];
+          if (texts[el.getAttribute('data-i18n')]) el.textContent = texts[el.getAttribute('data-i18n')];
         });
       }
 
-      applyTranslations(); // Извикваме веднага при зареждане
+      applyTranslations(); 
 
       async function checkAuth() {
         const { data: { session }, error } = await supabase.auth.getSession()
-        if (error || !session) {
-          window.location.href = 'login.html'
-          return null
-        }
-        return session
+        if (error || !session) { window.location.href = 'login.html'; return null; }
+        return session.user; // Връщаме самия потребител
       }
 
       function getTicketIdFromUrl() {
@@ -93,20 +85,9 @@
       }
 
       async function loadTicket(ticketId) {
-        const { data, error } = await supabase
-          .from('tickets')
-          .select('*, categories(name)')
-          .eq('id', ticketId)
-          .single()
-
-        if (error) {
-          document.getElementById('loadingSpinner').innerHTML = `<div class="alert alert-danger">Error: ${error.message}</div>`;
-          return;
-        }
-
-        if (data) {
-          displayTicket(data);
-        }
+        const { data, error } = await supabase.from('tickets').select('*, categories(name)').eq('id', ticketId).single()
+        if (error) { document.getElementById('loadingSpinner').innerHTML = `<div class="alert alert-danger">Error: ${error.message}</div>`; return; }
+        if (data) displayTicket(data);
       }
 
       function displayTicket(ticket) {
@@ -115,24 +96,26 @@
         container.style.display = 'block';
 
         const t = dictionary[currentLang];
-        
-        const statusMap = { 'open': 'success', 'in-progress': 'primary', 'closed': 'secondary', 'resolved': 'info' };
+        const statusMap = { 'open': 'success', 'in progress': 'primary', 'closed': 'secondary', 'resolved': 'info' };
         const prMap = { 'low': 'info', 'medium': 'warning', 'high': 'danger' };
         
-        // ВАЖНО: Обръщаме ги с малки букви, за да съвпаднат с речника, дори ако са записани като "Low" или "High"
-        const rawStatus = (ticket.status || 'open').toLowerCase();
+        const rawStatus = (ticket.status || 'open').toLowerCase().replace('-', ' ');
         const rawPriority = (ticket.priority || 'low').toLowerCase();
 
-        const trStatus = t[`status_${rawStatus.replace('-', '')}`] || rawStatus;
+        const trStatus = t[`status_${rawStatus.replace(' ', '')}`] || rawStatus;
         const trPriority = t[`priority_${rawPriority}`] || rawPriority;
 
         let attachHtml = '';
         if (ticket.attachment_url) {
-          attachHtml = `
-            <div class="mt-4">
-              <h6>${t.lblAttach}</h6>
-              <img src="${ticket.attachment_url}" class="img-fluid mt-3 rounded" style="max-height: 400px; object-fit: cover;">
-            </div>`;
+          attachHtml = `<div class="mt-4"><h6>${t.lblAttach}</h6><img src="${ticket.attachment_url}" class="img-fluid mt-3 rounded" style="max-height: 400px; object-fit: cover;"></div>`;
+        }
+
+        // ПРОВЕРКА ЗА БУТОНА РЕДАКТИРАЙ: 
+        // 1. Потребителят е авторът
+        // 2. Статусът е 'open'
+        let editButtonHtml = '';
+        if (ticket.user_id === currentUser.id && rawStatus === 'open') {
+            editButtonHtml = `<a href="edit-ticket.html?id=${ticket.id}" class="btn btn-warning shadow-sm">✏️ ${t.editBtn}</a>`;
         }
 
         container.innerHTML = `
@@ -143,10 +126,13 @@
             </div>
             <div class="card-body">
               <div class="row mb-3">
-                <div class="col-md-6">
+                <div class="col-md-4">
+                  <p class="mb-2"><strong>${t.lblAuthor}</strong> <span class="text-primary">${ticket.user_email || 'Unknown'}</span></p>
+                </div>
+                <div class="col-md-4">
                   <p class="mb-2"><strong>${t.lblPriority}</strong> <span class="badge bg-${prMap[rawPriority] || 'secondary'} text-capitalize">${trPriority}</span></p>
                 </div>
-                <div class="col-md-6">
+                <div class="col-md-4">
                   <p class="mb-2"><strong>${t.lblCategory}</strong> <span class="badge bg-secondary">${ticket.categories?.name || 'Uncategorized'}</span></p>
                 </div>
               </div>
@@ -159,16 +145,17 @@
               
               ${attachHtml}
               
-              <div class="mt-4 pt-3 border-top">
+              <div class="mt-4 pt-3 border-top d-flex justify-content-between align-items-center">
                 <a href="dashboard.html" class="btn btn-outline-primary">${t.backBtn}</a>
+                ${editButtonHtml}
               </div>
             </div>
           </div>`;
       }
 
       ;(async () => {
-        const session = await checkAuth();
-        if (session) {
+        currentUser = await checkAuth();
+        if (currentUser) {
           const ticketId = getTicketIdFromUrl();
           if (ticketId) loadTicket(ticketId);
         }
