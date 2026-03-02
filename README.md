@@ -2,7 +2,7 @@
 
 A fully functional, multi-page web application for managing IT support tickets. Built with Vanilla JavaScript, Bootstrap 5, and Supabase.
 
-🚀 **Live Demo:** [Link will be added after deployment]
+🚀 **Live Demo:** https://help-desk-xi-beige.vercel.app
 
 ## 🔑 Demo Credentials (For Examiners)
 
