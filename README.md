@@ -1,37 +1,79 @@
-IT Help Desk System 🎫
-This repository hosts the Capstone Project for the "Software Technologies with AI" course at SoftUni. The project is a fully functional Help Desk / Ticketing System designed to facilitate internal IT support requests.
+# 🛠️ IT Help Desk - Support Ticketing System
 
-🚀 Project Overview
-The application is a multi-page web app built without frontend frameworks (React/Vue), focusing on modern Vanilla JavaScript and modular architecture. It leverages AI-assisted development practices.
-+2
+A fully functional, multi-page web application for managing IT support tickets. Built with Vanilla JavaScript, Bootstrap 5, and Supabase.
 
-🛠 Tech Stack
+🚀 **Live Demo:** [Link will be added after deployment]
 
-Frontend: HTML5, CSS3, JavaScript (ES6+), Bootstrap 5 
+## 🔑 Demo Credentials (For Examiners)
 
+To simplify testing, you can use the built-in demo admin account:
 
-Build Tool: Vite 
+- **Email:** `demo@helpdesk.local` (or simply type `demo`)
+- **Password:** `demo123`
+  _Note: The login page includes a "1-Click Demo Admin Login" button for instant access._
 
+---
 
-Backend: Supabase (PostgreSQL) 
-+1
+## 🌟 Key Features
 
+### 👥 Roles & Authorization
 
-Authentication: Supabase Auth (Email/Password) 
+- **Regular Users:** Can create tickets, upload attachments, view their own tickets, and edit them (only if the status is `open`).
+- **Administrators:** Have a global dashboard to view all tickets from all users and can dynamically change ticket statuses (`open` -> `in progress` -> `resolved` -> `closed`).
 
+### 🌍 i18n (Internationalization)
 
-File Storage: Supabase Storage (for screenshots/attachments) 
+- The entire application supports real-time language switching between **English (EN)** and **Bulgarian (BG)** using a custom dictionary service.
 
-✨ Key Features
+### 🌓 Dark / Light Mode
 
-User Roles: Separate logic for standard Users and Administrators.
+- Fully integrated theme switcher that saves user preferences in the browser's `localStorage`.
 
-Ticket Management: Users can create, view, and track support tickets.
+### 🔒 Security & Database
 
+- Uses **Supabase Row Level Security (RLS)** to ensure data privacy (users can only access their own data via DB policies).
+- Stores attachments securely in **Supabase Storage**.
+- Minimum 4 DB tables implemented: `users` (auth), `profiles`, `tickets`, `categories`, and `comments`.
 
-File Uploads: Users can attach screenshots to their tickets.
+---
 
+## 🏗️ Architecture & Technologies
 
-Admin Panel: Administrators can view all tickets, change priorities, and update statuses.
+This project strictly follows the **"Frontend is UI only"** principle. The codebase is modular and separates business logic from UI rendering (MVC-like pattern).
 
-Responsive Design: Styled with Bootstrap for mobile and desktop support.
+- **Frontend:** HTML5, CSS3, Vanilla JavaScript (ES6+)
+- **UI Framework:** Bootstrap 5
+- **Bundler:** Vite (for local development and multi-page routing)
+- **Backend (BaaS):** Supabase (PostgreSQL Database, Auth, Storage)
+- **JS Services:**
+  - `api.js`: Handles all database queries.
+  - `auth.js`: Handles user sessions, login, and registration.
+  - `i18n.js`: Handles translations and language state.
+
+---
+
+## 💻 Local Development Setup
+
+If you want to run this project locally on your machine, follow these steps:
+
+1. **Clone the repository:**
+
+   ```bash
+   git clone https://github.com/danielgenchev/HelpDesk.git
+   cd HelpDesk
+   ```
+
+2. **Install dependencies:**
+
+   ```bash
+   npm install
+   ```
+
+3. **Start the development server:**
+
+   ```bash
+   npm run dev
+   ```
+
+4. **Environment Variables:**
+   _The Supabase keys are currently initialized in `src/supabase.js` for testing purposes._
