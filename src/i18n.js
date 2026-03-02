@@ -26,3 +26,21 @@ export function getCurrentLang() {
 export function setLang(lang) {
     localStorage.setItem('lang', lang);
 }
+
+// Функция за превод на категориите от базата данни
+export function translateCategory(dbCategoryName) {
+    const lang = getCurrentLang();
+    
+    // Ако сме на български, връщаме името директно от базата
+    if (lang === 'bg') return dbCategoryName; 
+    
+    // Ако сме на английски, го превеждаме
+    const enTranslations = {
+        'Хардуер': 'Hardware',
+        'Софтуер': 'Software',
+        'Мрежа и Интернет': 'Network',
+        'Друго': 'Other'
+    };
+    
+    return enTranslations[dbCategoryName] || dbCategoryName;
+}
