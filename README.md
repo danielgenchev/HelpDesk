@@ -39,7 +39,7 @@ To simplify testing, you can use the built-in demo admin account:
 
 ### 📊 Database Schema
 
-````mermaid
+```mermaid
 erDiagram
     auth_users ||--o{ profiles : "has"
     auth_users ||--o{ tickets : "creates"
@@ -78,6 +78,7 @@ erDiagram
         text content
         timestamp created_at
     }
+```
 
 ## 🏗️ Architecture & Technologies
 
@@ -103,6 +104,8 @@ If you want to run this project locally on your machine, follow these steps:
    ```bash
    git clone https://github.com/danielgenchev/HelpDesk.git
    cd HelpDesk
+   ```
+
 ````
 
 2. **Install dependencies:**
@@ -119,3 +122,4 @@ If you want to run this project locally on your machine, follow these steps:
 
 4. **Environment Variables:**
    _The Supabase keys are currently initialized in `src/supabase.js` for testing purposes._
+````
