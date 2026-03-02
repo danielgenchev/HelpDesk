@@ -37,6 +37,48 @@ To simplify testing, you can use the built-in demo admin account:
 
 ---
 
+### 📊 Database Schema
+
+````mermaid
+erDiagram
+    auth_users ||--o{ profiles : "has"
+    auth_users ||--o{ tickets : "creates"
+    auth_users ||--o{ comments : "writes"
+    categories ||--o{ tickets : "classifies"
+    tickets ||--o{ comments : "contains"
+
+    auth_users {
+        uuid id PK
+        string email
+    }
+    profiles {
+        uuid id PK "FK to auth.users"
+        string role "admin/user"
+    }
+    categories {
+        int id PK
+        string name
+    }
+    tickets {
+        int id PK
+        uuid user_id FK
+        string user_email
+        int category_id FK
+        string title
+        text description
+        string priority
+        string status
+        string attachment_url
+        timestamp created_at
+    }
+    comments {
+        int id PK
+        int ticket_id FK
+        uuid user_id FK
+        text content
+        timestamp created_at
+    }
+
 ## 🏗️ Architecture & Technologies
 
 This project strictly follows the **"Frontend is UI only"** principle. The codebase is modular and separates business logic from UI rendering (MVC-like pattern).
@@ -61,7 +103,7 @@ If you want to run this project locally on your machine, follow these steps:
    ```bash
    git clone https://github.com/danielgenchev/HelpDesk.git
    cd HelpDesk
-   ```
+````
 
 2. **Install dependencies:**
 
