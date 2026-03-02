@@ -18,6 +18,7 @@ function applyTranslations() {
     const key = el.getAttribute('data-i18n');
     if (texts[key]) el.textContent = texts[key];
   });
+  document.getElementById('langLabel').textContent = lang === 'bg' ? '🌐 BG' : '🌐 EN';
 }
 
 // Change language globally
@@ -71,7 +72,7 @@ function displayTicket(ticket) {
   const rawStatus = (ticket.status || 'open').toLowerCase().replace('-', ' ');
   const rawPriority = (ticket.priority || 'low').toLowerCase();
 
-  const trStatus = t[`status_${rawStatus.replace(' ', '')}`] || rawStatus;
+  const trStatus = t[`status_${rawStatus.replace(/ /g, '')}`] || rawStatus;
   const trPriority = t[`priority_${rawPriority}`] || rawPriority;
 
   // Translate category name if it exists
@@ -99,16 +100,16 @@ function displayTicket(ticket) {
       <div class="card-body">
         <div class="row mb-3">
           <div class="col-md-4">
-            <p class="mb-2"><strong>${t.lblAuthor}</strong> <span class="text-primary">${ticket.user_email || 'Unknown'}</span></p>
+            <p class="mb-2"><strong>${t.lblAuthor}:</strong> <span class="text-primary">${ticket.user_email || 'Unknown'}</span></p>
           </div>
           <div class="col-md-4">
-            <p class="mb-2"><strong>${t.lblPriority}</strong> <span class="badge bg-${prMap[rawPriority] || 'secondary'} text-capitalize">${trPriority}</span></p>
+            <p class="mb-2"><strong>${t.lblPriority}:</strong> <span class="badge bg-${prMap[rawPriority] || 'secondary'} text-capitalize">${trPriority}</span></p>
           </div>
           <div class="col-md-4">
-            <p class="mb-2"><strong>${t.lblCategory}</strong> <span class="badge bg-secondary">${categoryName}</span></p>
+            <p class="mb-2"><strong>${t.lblCategory}:</strong> <span class="badge bg-secondary">${categoryName}</span></p>
           </div>
         </div>
-        <p class="text-muted"><strong>${t.lblCreated}</strong> ${new Date(ticket.created_at).toLocaleString()}</p>
+        <p class="text-muted"><strong>${t.lblCreated}:</strong> ${new Date(ticket.created_at).toLocaleString()}</p>
         
         <div class="bg-body-tertiary p-3 rounded mb-3">
           <h6>${t.lblDesc}</h6>
