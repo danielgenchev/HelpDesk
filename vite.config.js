@@ -11,6 +11,7 @@ export default defineConfig({
         dashboard: resolve(__dirname, 'dashboard.html'),
         createTicket: resolve(__dirname, 'create-ticket.html'),
         viewTicket: resolve(__dirname, 'view-ticket.html'),
+        editTicket: resolve(__dirname, 'edit-ticket.html'), 
         settings: resolve(__dirname, 'settings.html')
       }
     }
